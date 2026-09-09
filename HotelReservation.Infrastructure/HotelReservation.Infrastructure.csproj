@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HotelReservation.Application\HotelReservation.Application.csproj" />
     <ProjectReference Include="..\HotelReservation.Domain\HotelReservation.Domain.csproj" />
   </ItemGroup>

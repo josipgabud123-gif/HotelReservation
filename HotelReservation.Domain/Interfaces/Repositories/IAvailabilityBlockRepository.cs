@@ -26,5 +26,7 @@ public interface IAvailabilityBlockRepository
 
     Task AddAsync(AvailabilityBlock availabilityBlock);
 
+    void RemoveRange(IEnumerable<AvailabilityBlock> blocks);
+
     void Remove(AvailabilityBlock availabilityBlock);
 }

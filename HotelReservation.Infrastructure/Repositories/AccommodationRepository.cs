@@ -1,4 +1,5 @@
 ﻿using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Enums;
 using HotelReservation.Domain.Interfaces.Repositories;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -57,4 +58,24 @@ public class AccommodationRepository : IAccommodationRepository
     {
         _context.Accommodations.Remove(accommodation);
     }
+    public async Task<List<Accommodation>> GetPendingAsync()
+    {
+        return await _context.Accommodations
+            .Include(a => a.Owner)
+            .Where(a => a.ApprovalStatus == ApprovalStatus.Pending)
+            .ToListAsync();
+    }
+
+  
+
+    public async Task<bool> HasAnyReservationAsync(int accommodationId)
+    {
+        return await _context.Reservations.AnyAsync(r =>
+            r.AccommodationUnit.AccommodationId == accommodationId);
+    }
+    public void RemovePhoto(AccommodationPhoto photo)
+    {
+        _context.AccommodationPhotos.Remove(photo);
+    }
+
 }

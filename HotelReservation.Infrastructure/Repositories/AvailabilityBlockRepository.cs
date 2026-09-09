@@ -78,4 +78,10 @@ public class AvailabilityBlockRepository
     {
         _context.AvailabilityBlocks.Remove(availabilityBlock);
     }
+
+    public void RemoveRange(IEnumerable<AvailabilityBlock> blocks)
+    {
+        _context.AvailabilityBlocks.RemoveRange(blocks);
+    }
+
 }

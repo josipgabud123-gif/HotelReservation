@@ -92,4 +92,12 @@ public class ReservationRepository : IReservationRepository
     {
         await _context.Reservations.AddAsync(reservation);
     }
+
+    public async Task<bool> AccommodationHasAnyReservationAsync(
+    int accommodationId)
+    {
+        return await _context.Reservations
+            .AnyAsync(r =>
+                r.AccommodationUnit.AccommodationId == accommodationId);
+    }
 }

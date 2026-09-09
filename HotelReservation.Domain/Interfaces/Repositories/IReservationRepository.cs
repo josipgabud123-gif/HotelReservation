@@ -24,5 +24,7 @@ public interface IReservationRepository
     Task<List<Reservation>> GetConfirmedReservationsForCompletionAsync(
         DateOnly today);
 
+    Task<bool> AccommodationHasAnyReservationAsync(int accommodationId);
+
     Task AddAsync(Reservation reservation);
 }

@@ -7,6 +7,7 @@ using HotelReservation.Infrastructure.Authentication;
 using HotelReservation.Infrastructure.Data;
 using HotelReservation.Infrastructure.Data.Seed;
 using HotelReservation.Infrastructure.Repositories;
+using HotelReservation.Infrastructure.Storage;
 using HotelReservation.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IAvailabilityBlockRepository, AvailabilityBlockRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<IAccommodationService,AccommodationService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -110,6 +112,11 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddScoped<IFileStorageService>(_ => new LocalFileStorageService(
+        Path.Combine(
+            builder.Environment.ContentRootPath,
+            "wwwroot")));
+
 
 var app = builder.Build();
 
@@ -151,6 +158,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
