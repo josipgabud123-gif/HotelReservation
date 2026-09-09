@@ -1,4 +1,5 @@
 ﻿using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Enums;
 
 namespace HotelReservation.Domain.Interfaces;
 
@@ -13,6 +14,12 @@ public interface IAccommodationRepository
     Task<List<Accommodation>> GetPendingAsync();
 
     Task<List<Accommodation>> GetAllAsync();
+
+    Task<List<Accommodation>> GetSearchCandidatesAsync(
+        string city,
+        string country,
+        AccommodationType? type,
+        string? nameSearch);
 
     Task<bool> HasAnyReservationAsync(int accommodationId);
 

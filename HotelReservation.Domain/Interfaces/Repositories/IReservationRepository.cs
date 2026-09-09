@@ -1,6 +1,6 @@
 ﻿using HotelReservation.Domain.Entities;
 
-namespace HotelReservation.Domain.Interfaces.Repositories;
+namespace HotelReservation.Domain.Interfaces;
 
 public interface IReservationRepository
 {
@@ -8,9 +8,11 @@ public interface IReservationRepository
 
     Task<Reservation?> GetByIdWithDetailsAsync(int id);
 
-    Task<List<Reservation>> GetByAccountIdAsync(int accountId);
+    Task<List<Reservation>> GetByAccountIdAsync(
+        int accountId);
 
-    Task<List<Reservation>> GetByOwnerIdAsync(int ownerId);
+    Task<List<Reservation>> GetByOwnerIdAsync(
+        int ownerId);
 
     Task<List<Reservation>> GetAllAsync();
 
@@ -19,12 +21,12 @@ public interface IReservationRepository
         DateOnly checkInDate,
         DateOnly checkOutDate);
 
-    Task<bool> UnitHasAnyReservationAsync(int accommodationUnitId);
+    Task<bool> UnitHasAnyReservationAsync(
+        int accommodationUnitId);
 
-    Task<List<Reservation>> GetConfirmedReservationsForCompletionAsync(
-        DateOnly today);
-
-    Task<bool> AccommodationHasAnyReservationAsync(int accommodationId);
+    Task<List<Reservation>>
+        GetConfirmedReservationsForCompletionAsync(
+            DateOnly today);
 
     Task AddAsync(Reservation reservation);
 }

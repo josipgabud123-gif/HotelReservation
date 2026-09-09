@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelReservation.Infrastructure.Repositories;
 
-public class AccommodationRepository
-    : IAccommodationRepository
+public class AccommodationRepository : IAccommodationRepository
 {
     private readonly HotelReservationDbContext _context;
 
@@ -27,9 +26,7 @@ public class AccommodationRepository
         int id)
     {
         return await _context.Accommodations
-
             .Include(a => a.Owner)
-
             .Include(a => a.Photos)
 
             .Include(a => a.Units)
@@ -39,17 +36,15 @@ public class AccommodationRepository
                 .ThenInclude(aa => aa.Amenity)
 
             .Include(a => a.Units)
-                .ThenInclude(u =>
-                    u.AccommodationUnitAmenities)
+                .ThenInclude(u => u.AccommodationUnitAmenities)
                 .ThenInclude(ua => ua.Amenity)
 
             .AsSplitQuery()
-
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<List<Accommodation>>
-        GetByOwnerIdAsync(int ownerId)
+    public async Task<List<Accommodation>> GetByOwnerIdAsync(
+        int ownerId)
     {
         return await _context.Accommodations
             .Where(a => a.OwnerId == ownerId)
@@ -61,8 +56,7 @@ public class AccommodationRepository
         return await _context.Accommodations
             .Include(a => a.Owner)
             .Where(a =>
-                a.ApprovalStatus ==
-                ApprovalStatus.Pending)
+                a.ApprovalStatus == ApprovalStatus.Pending)
             .ToListAsync();
     }
 
@@ -72,13 +66,70 @@ public class AccommodationRepository
             .ToListAsync();
     }
 
+    public async Task<List<Accommodation>> GetSearchCandidatesAsync(
+        string city,
+        string country,
+        AccommodationType? type,
+        string? nameSearch)
+    {
+        string normalizedCity =
+            city.Trim().ToLower();
+
+        string normalizedCountry =
+            country.Trim().ToLower();
+
+        IQueryable<Accommodation> query =
+            _context.Accommodations
+                .AsNoTracking()
+
+                .Include(a => a.Owner)
+                .Include(a => a.Photos)
+
+                .Include(a => a.AccommodationAmenities)
+                    .ThenInclude(aa => aa.Amenity)
+
+                .Include(a => a.AvailabilityBlocks)
+
+                .Include(a => a.Units)
+                    .ThenInclude(u => u.AccommodationUnitAmenities)
+                    .ThenInclude(ua => ua.Amenity)
+
+                .Include(a => a.Units)
+                    .ThenInclude(u => u.Reservations)
+
+                .Include(a => a.Units)
+                    .ThenInclude(u => u.AvailabilityBlocks)
+
+                .AsSplitQuery()
+
+                .Where(a =>
+                    a.City.ToLower() == normalizedCity &&
+                    a.Country.ToLower() == normalizedCountry);
+
+        if (type.HasValue)
+        {
+            query = query.Where(a =>
+                a.Type == type.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(nameSearch))
+        {
+            string normalizedName =
+                nameSearch.Trim().ToLower();
+
+            query = query.Where(a =>
+                a.Name.ToLower().Contains(normalizedName));
+        }
+
+        return await query.ToListAsync();
+    }
+
     public async Task<bool> HasAnyReservationAsync(
         int accommodationId)
     {
         return await _context.Reservations
             .AnyAsync(r =>
-                r.AccommodationUnit
-                    .AccommodationId ==
+                r.AccommodationUnit.AccommodationId ==
                 accommodationId);
     }
 
