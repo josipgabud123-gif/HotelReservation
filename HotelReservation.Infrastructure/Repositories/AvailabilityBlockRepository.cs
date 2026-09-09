@@ -1,5 +1,5 @@
 ﻿using HotelReservation.Domain.Entities;
-using HotelReservation.Domain.Interfaces.Repositories;
+using HotelReservation.Domain.Interfaces;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,15 +26,21 @@ public class AvailabilityBlockRepository
         GetByAccommodationIdAsync(int accommodationId)
     {
         return await _context.AvailabilityBlocks
-            .Where(b => b.AccommodationId == accommodationId)
+            .Where(b =>
+                b.AccommodationId == accommodationId)
+            .OrderBy(b => b.StartDate)
             .ToListAsync();
     }
 
     public async Task<List<AvailabilityBlock>>
-        GetByAccommodationUnitIdAsync(int accommodationUnitId)
+        GetByAccommodationUnitIdAsync(
+            int accommodationUnitId)
     {
         return await _context.AvailabilityBlocks
-            .Where(b => b.AccommodationUnitId == accommodationUnitId)
+            .Where(b =>
+                b.AccommodationUnitId ==
+                accommodationUnitId)
+            .OrderBy(b => b.StartDate)
             .ToListAsync();
     }
 
@@ -45,43 +51,46 @@ public class AvailabilityBlockRepository
         DateOnly endDate,
         int? excludedBlockId = null)
     {
-        return await _context.AvailabilityBlocks.AnyAsync(b =>
-            (!excludedBlockId.HasValue || b.Id != excludedBlockId.Value) &&
-            b.AccommodationId == accommodationId &&
-            b.AccommodationUnitId == accommodationUnitId &&
-            startDate < b.EndDate &&
-            endDate > b.StartDate);
+        return await _context.AvailabilityBlocks
+            .AnyAsync(b =>
+                b.AccommodationId == accommodationId &&
+                b.AccommodationUnitId ==
+                    accommodationUnitId &&
+                (!excludedBlockId.HasValue ||
+                 b.Id != excludedBlockId.Value) &&
+                startDate < b.EndDate &&
+                endDate > b.StartDate);
     }
 
     public async Task<bool> IsUnitBlockedAsync(
         int accommodationId,
         int accommodationUnitId,
-        DateOnly checkInDate,
-        DateOnly checkOutDate)
+        DateOnly startDate,
+        DateOnly endDate)
     {
-        return await _context.AvailabilityBlocks.AnyAsync(b =>
-            (
-                b.AccommodationId == accommodationId ||
-                b.AccommodationUnitId == accommodationUnitId
-            )
-            &&
-            checkInDate < b.EndDate &&
-            checkOutDate > b.StartDate);
+        return await _context.AvailabilityBlocks
+            .AnyAsync(b =>
+                (
+                    b.AccommodationId ==
+                        accommodationId ||
+                    b.AccommodationUnitId ==
+                        accommodationUnitId
+                ) &&
+                startDate < b.EndDate &&
+                endDate > b.StartDate);
     }
 
-    public async Task AddAsync(AvailabilityBlock availabilityBlock)
+    public async Task AddAsync(
+        AvailabilityBlock availabilityBlock)
     {
-        await _context.AvailabilityBlocks.AddAsync(availabilityBlock);
+        await _context.AvailabilityBlocks
+            .AddAsync(availabilityBlock);
     }
 
-    public void Remove(AvailabilityBlock availabilityBlock)
+    public void Remove(
+        AvailabilityBlock availabilityBlock)
     {
-        _context.AvailabilityBlocks.Remove(availabilityBlock);
+        _context.AvailabilityBlocks
+            .Remove(availabilityBlock);
     }
-
-    public void RemoveRange(IEnumerable<AvailabilityBlock> blocks)
-    {
-        _context.AvailabilityBlocks.RemoveRange(blocks);
-    }
-
 }

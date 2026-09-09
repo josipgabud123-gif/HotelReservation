@@ -34,6 +34,9 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IAvailabilityBlockRepository, AvailabilityBlockRepository>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 builder.Services.AddScoped<IAccommodationService,AccommodationService>();
+builder.Services.AddScoped<IAccommodationUnitService,AccommodationUnitService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IAvailabilityBlockService,AvailabilityBlockService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

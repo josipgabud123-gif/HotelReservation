@@ -1,12 +1,13 @@
 ﻿using HotelReservation.Domain.Entities;
 
-namespace HotelReservation.Domain.Interfaces.Repositories;
+namespace HotelReservation.Domain.Interfaces;
 
 public interface IAvailabilityBlockRepository
 {
     Task<AvailabilityBlock?> GetByIdAsync(int id);
 
-    Task<List<AvailabilityBlock>> GetByAccommodationIdAsync(int accommodationId);
+    Task<List<AvailabilityBlock>> GetByAccommodationIdAsync(
+        int accommodationId);
 
     Task<List<AvailabilityBlock>> GetByAccommodationUnitIdAsync(
         int accommodationUnitId);
@@ -21,12 +22,10 @@ public interface IAvailabilityBlockRepository
     Task<bool> IsUnitBlockedAsync(
         int accommodationId,
         int accommodationUnitId,
-        DateOnly checkInDate,
-        DateOnly checkOutDate);
+        DateOnly startDate,
+        DateOnly endDate);
 
     Task AddAsync(AvailabilityBlock availabilityBlock);
-
-    void RemoveRange(IEnumerable<AvailabilityBlock> blocks);
 
     void Remove(AvailabilityBlock availabilityBlock);
 }

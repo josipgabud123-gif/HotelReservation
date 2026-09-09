@@ -1,6 +1,6 @@
 ﻿using HotelReservation.Domain.Entities;
 
-namespace HotelReservation.Domain.Interfaces.Repositories;
+namespace HotelReservation.Domain.Interfaces;
 
 public interface IAccommodationRepository
 {
@@ -21,4 +21,7 @@ public interface IAccommodationRepository
     void Remove(Accommodation accommodation);
 
     void RemovePhoto(AccommodationPhoto photo);
+
+    void RemoveAmenity(
+        AccommodationAmenity accommodationAmenity);
 }
