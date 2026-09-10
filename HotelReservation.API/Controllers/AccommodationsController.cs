@@ -1,4 +1,4 @@
-﻿using HotelReservation.API.Models.Requests;
+using HotelReservation.API.Models.Requests;
 using HotelReservation.Application.DTOs.Accommodation;
 using HotelReservation.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +44,17 @@ public class AccommodationsController : ControllerBase
             await _service
                 .GetOwnerAccommodationsAsync(
                     AccountId));
+    }
+
+    [Authorize(Roles = "Owner")]
+    [HttpGet("{id:int}/manage")]
+    public async Task<ActionResult<AccommodationManagementDto>> Manage(
+        int id)
+    {
+        return Ok(
+            await _service.GetManagementAsync(
+                AccountId,
+                id));
     }
 
     [Authorize(Roles = "Owner")]

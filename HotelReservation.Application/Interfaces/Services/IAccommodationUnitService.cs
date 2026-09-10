@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTOs.AccommodationUnit;
+using HotelReservation.Application.DTOs.AccommodationUnit;
 
 namespace HotelReservation.Application.Interfaces.Services;
 
@@ -31,4 +31,24 @@ public interface IAccommodationUnitService
         int ownerId,
         int accommodationId,
         int unitId);
+
+    Task<AccommodationUnitPhotoDto> AddPhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        Stream fileStream,
+        string fileName,
+        bool isPrimary);
+
+    Task DeletePhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        int photoId);
+
+    Task SetPrimaryPhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        int photoId);
 }

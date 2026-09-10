@@ -1,4 +1,5 @@
-﻿using HotelReservation.Domain.Enums;
+using HotelReservation.Application.DTOs.Accommodation;
+using HotelReservation.Domain.Enums;
 
 namespace HotelReservation.Application.DTOs.Search;
 
@@ -17,6 +18,8 @@ public class AccommodationSearchResultDto
     public AccommodationType Type { get; set; }
 
     public string? PrimaryPhotoPath { get; set; }
+
+    public List<AccommodationPhotoDto> Photos { get; set; } = new();
 
     public decimal FromPricePerNight { get; set; }
 

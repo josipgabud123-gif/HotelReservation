@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTOs.Accommodation;
+using HotelReservation.Application.DTOs.Accommodation;
 
 namespace HotelReservation.Application.Interfaces.Services;
 
@@ -10,6 +10,15 @@ public interface IAccommodationService
 
     Task<List<AccommodationDto>> GetOwnerAccommodationsAsync(
         int ownerId);
+
+    Task<AccommodationManagementDto> GetManagementAsync(
+        int ownerId,
+        int accommodationId);
+
+    Task<AccommodationManagementDto> GetAdminDetailsAsync(
+        int accommodationId);
+
+    Task<List<AccommodationDto>> GetAllAsync();
 
     Task<AccommodationDto> UpdateAsync(
         int ownerId,

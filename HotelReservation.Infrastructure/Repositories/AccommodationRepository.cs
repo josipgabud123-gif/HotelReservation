@@ -1,4 +1,4 @@
-﻿using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Enums;
 using HotelReservation.Domain.Interfaces;
 using HotelReservation.Infrastructure.Data;
@@ -93,6 +93,9 @@ public class AccommodationRepository : IAccommodationRepository
                 .Include(a => a.Units)
                     .ThenInclude(u => u.AccommodationUnitAmenities)
                     .ThenInclude(ua => ua.Amenity)
+
+                .Include(a => a.Units)
+                    .ThenInclude(u => u.Photos)
 
                 .Include(a => a.Units)
                     .ThenInclude(u => u.Reservations)

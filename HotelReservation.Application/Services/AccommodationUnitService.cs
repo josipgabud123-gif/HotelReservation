@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTOs.AccommodationUnit;
+using HotelReservation.Application.DTOs.AccommodationUnit;
 using HotelReservation.Application.Exceptions;
 using HotelReservation.Application.Interfaces.Services;
 using HotelReservation.Domain.Entities;
@@ -393,6 +393,178 @@ public class AccommodationUnitService : IAccommodationUnitService
         {
             _fileStorageService.Delete(path);
         }
+    }
+
+    public async Task<AccommodationUnitPhotoDto> AddPhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        Stream fileStream,
+        string fileName,
+        bool isPrimary)
+    {
+        AccommodationUnit? unit =
+            await _unitOfWork.AccommodationUnits
+                .GetByIdWithDetailsAsync(unitId);
+
+        if (unit is null)
+        {
+            throw new NotFoundException(
+                "Accommodation unit was not found.");
+        }
+
+        EnsureUnitBelongsToAccommodation(
+            unit,
+            accommodationId);
+
+        EnsureCanManageUnit(
+            unit,
+            ownerId);
+
+        bool shouldBePrimary =
+            unit.Photos.Count == 0 ||
+            isPrimary ||
+            !unit.Photos.Any(p => p.IsPrimary);
+
+        if (shouldBePrimary)
+        {
+            foreach (AccommodationUnitPhoto existingPhoto in unit.Photos)
+            {
+                existingPhoto.IsPrimary = false;
+            }
+        }
+
+        string path =
+            await _fileStorageService.SaveAsync(
+                fileStream,
+                fileName,
+                $"accommodations/{accommodationId}/units");
+
+        var photo = new AccommodationUnitPhoto
+        {
+            Path = path,
+            IsPrimary = shouldBePrimary,
+            AccommodationUnitId = unitId
+        };
+
+        unit.Photos.Add(photo);
+        unit.Accommodation.UpdatedAt = DateTime.UtcNow;
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch
+        {
+            _fileStorageService.Delete(path);
+            throw;
+        }
+
+        return new AccommodationUnitPhotoDto
+        {
+            Id = photo.Id,
+            Path = photo.Path,
+            IsPrimary = photo.IsPrimary
+        };
+    }
+
+    public async Task DeletePhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        int photoId)
+    {
+        AccommodationUnit? unit =
+            await _unitOfWork.AccommodationUnits
+                .GetByIdWithDetailsAsync(unitId);
+
+        if (unit is null)
+        {
+            throw new NotFoundException(
+                "Accommodation unit was not found.");
+        }
+
+        EnsureUnitBelongsToAccommodation(
+            unit,
+            accommodationId);
+
+        EnsureCanManageUnit(
+            unit,
+            ownerId);
+
+        AccommodationUnitPhoto? photo =
+            unit.Photos.FirstOrDefault(p => p.Id == photoId);
+
+        if (photo is null)
+        {
+            throw new NotFoundException(
+                "Unit photo was not found.");
+        }
+
+        if (unit.IsActive && unit.Photos.Count == 1)
+        {
+            throw new ConflictException(
+                "Active unit must have at least one photo.");
+        }
+
+        bool wasPrimary = photo.IsPrimary;
+
+        unit.Photos.Remove(photo);
+        _unitOfWork.AccommodationUnits.RemovePhoto(photo);
+
+        if (wasPrimary && unit.Photos.Count > 0)
+        {
+            unit.Photos.First().IsPrimary = true;
+        }
+
+        unit.Accommodation.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.SaveChangesAsync();
+
+        _fileStorageService.Delete(photo.Path);
+    }
+
+    public async Task SetPrimaryPhotoAsync(
+        int ownerId,
+        int accommodationId,
+        int unitId,
+        int photoId)
+    {
+        AccommodationUnit? unit =
+            await _unitOfWork.AccommodationUnits
+                .GetByIdWithDetailsAsync(unitId);
+
+        if (unit is null)
+        {
+            throw new NotFoundException(
+                "Accommodation unit was not found.");
+        }
+
+        EnsureUnitBelongsToAccommodation(
+            unit,
+            accommodationId);
+
+        EnsureCanManageUnit(
+            unit,
+            ownerId);
+
+        AccommodationUnitPhoto? selectedPhoto =
+            unit.Photos.FirstOrDefault(p => p.Id == photoId);
+
+        if (selectedPhoto is null)
+        {
+            throw new NotFoundException(
+                "Unit photo was not found.");
+        }
+
+        foreach (AccommodationUnitPhoto photo in unit.Photos)
+        {
+            photo.IsPrimary = photo.Id == selectedPhoto.Id;
+        }
+
+        unit.Accommodation.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.SaveChangesAsync();
     }
 
     private static void EnsureUnitBelongsToAccommodation(

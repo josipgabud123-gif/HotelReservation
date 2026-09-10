@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation</title>
+    <link rel="stylesheet" href="/styles.css?v=4">
+</head>
+<body>
+<header>
+    <div>
+        <h1>Hotel Reservation</h1>
+        <p>Funkcionalni klijent za sve glavne API funkcionalnosti</p>
+    </div>
+    <div id="sessionBox" class="session-box"></div>
+</header>
+
+<nav>
+    <button data-section="searchSection">Pretraga</button>
+    <button data-section="authSection">Login / Registracija</button>
+    <button data-section="myReservationsSection" class="auth-only">Moje rezervacije</button>
+    <button data-section="ownerSection" class="owner-only">Owner</button>
+    <button data-section="adminSection" class="admin-only">Admin</button>
+    <a href="/swagger" target="_blank">Swagger</a>
+</nav>
+
+<main>
+    <div id="message" class="message hidden"></div>
+
+    <section id="searchSection" class="panel active-section">
+        <h2>Pretraga smještaja</h2>
+        <form id="searchForm" class="grid-form">
+            <label>Grad<input name="city" value="Split" required></label>
+            <label>Država<input name="country" value="Croatia" required></label>
+            <label>Check-in<input type="date" name="checkIn" required></label>
+            <label>Check-out<input type="date" name="checkOut" required></label>
+            <label>Broj gostiju<input type="number" name="guestCount" min="1" value="2" required></label>
+            <label>Min. ukupna cijena<input type="number" name="minPrice" min="0" step="0.01"></label>
+            <label>Max. ukupna cijena<input type="number" name="maxPrice" min="0" step="0.01"></label>
+            <label>Tip
+                <select name="type">
+                    <option value="">Svi</option>
+                    <option value="1">Hotel</option>
+                    <option value="2">Apartman</option>
+                </select>
+            </label>
+            <label>Naziv sadrži<input name="nameSearch"></label>
+            <label>Sortiranje
+                <select name="sort">
+                    <option value="1">Cijena uzlazno</option>
+                    <option value="2">Cijena silazno</option>
+                    <option value="3">Naziv A-Z</option>
+                    <option value="4">Naziv Z-A</option>
+                </select>
+            </label>
+            <div class="full-width">
+                <strong>Sadržaji</strong>
+                <div id="searchAmenities" class="checkbox-list"></div>
+            </div>
+            <button type="submit" class="primary">Pretraži</button>
+        </form>
+        <div id="searchResults" class="cards"></div>
+    </section>
+
+    <section id="authSection" class="panel">
+        <div class="two-columns">
+            <div>
+                <h2>Login</h2>
+                <form id="loginForm" class="stack-form">
+                    <label>Email<input type="email" name="email" required></label>
+                    <label>Lozinka<input type="password" name="password" required></label>
+                    <button type="submit" class="primary">Prijavi se</button>
+                </form>
+            </div>
+            <div>
+                <h2>Registracija</h2>
+                <form id="registerForm" class="stack-form">
+                    <label>Ime<input name="firstName" required></label>
+                    <label>Prezime<input name="lastName" required></label>
+                    <label>Email<input type="email" name="email" required></label>
+                    <label>Lozinka<input type="password" name="password" required></label>
+                    <label>Uloga
+                        <select name="role">
+                            <option value="1">Customer</option>
+                            <option value="2">Owner</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">Registriraj se</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="myReservationsSection" class="panel">
+        <div class="section-heading">
+            <h2>Moje rezervacije</h2>
+            <button id="loadMyReservations">Osvježi</button>
+        </div>
+        <div id="myReservations" class="cards"></div>
+    </section>
+
+    <section id="ownerSection" class="panel">
+        <h2>Owner upravljanje</h2>
+        <p class="hint">Ne moraš znati nijedan ID. Odaberi smještaj po nazivu, a aplikacija ID koristi interno. Nakon dodavanja, uređivanja ili brisanja prikaz se automatski osvježava.</p>
+
+        <details open>
+            <summary>Moji smještaji</summary>
+            <button id="loadOwnerAccommodations">Osvježi popis</button>
+            <div id="ownerAccommodations" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Kreiraj smještaj</summary>
+            <form id="createAccommodationForm" class="grid-form">
+                <label>Naziv<input name="name" required></label>
+                <label>Opis<input name="description" required></label>
+                <label>Adresa<input name="address" required></label>
+                <label>Grad<input name="city" required></label>
+                <label>Država<input name="country" required></label>
+                <label>Tip
+                    <select name="type" id="createAccommodationType">
+                        <option value="1">Hotel</option>
+                        <option value="2">Apartman</option>
+                    </select>
+                </label>
+                <label class="apartment-field hidden">Kapacitet<input type="number" name="capacity" min="1"></label>
+                <label class="apartment-field hidden">Cijena/noć<input type="number" name="pricePerNight" min="0.01" step="0.01"></label>
+                <label class="apartment-field hidden">Otkazivanje
+                    <select name="cancellationPolicy">
+                        <option value="1">Flexible</option>
+                        <option value="2">Moderate</option>
+                        <option value="3">Strict</option>
+                    </select>
+                </label>
+                <button type="submit" class="primary">Kreiraj</button>
+            </form>
+        </details>
+
+        <details open>
+            <summary>Upravljanje odabranim smještajem</summary>
+            <label>Odaberi smještaj
+                <select id="ownerAccommodationSelect">
+                    <option value="">-- prvo učitaj moje smještaje --</option>
+                </select>
+            </label>
+            <div id="ownerSelectedInfo" class="cards"></div>
+        </details>
+
+        <details open>
+            <summary>Fotografije smještaja</summary>
+            <form id="accommodationPhotoForm" class="grid-form">
+                <label>Fotografija<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required></label>
+                <label class="checkbox-inline"><input type="checkbox" name="isPrimary"> Primarna</label>
+                <button type="submit">Dodaj fotografiju odabranom smještaju</button>
+            </form>
+            <div id="ownerPhotos" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Sadržaji smještaja</summary>
+            <div id="ownerAccommodationAmenities" class="checkbox-list"></div>
+            <button id="saveAccommodationAmenities">Spremi sadržaje odabranog smještaja</button>
+        </details>
+
+        <details open>
+            <summary>Hotelske sobe / units</summary>
+            <h3>Kreiraj sobu u odabranom hotelu</h3>
+            <form id="createUnitForm" class="grid-form">
+                <label>Naziv sobe<input name="name" required></label>
+                <label>Kapacitet<input type="number" name="capacity" min="1" required></label>
+                <label>Cijena/noć<input type="number" name="pricePerNight" min="0.01" step="0.01" required></label>
+                <label>Otkazivanje
+                    <select name="cancellationPolicy">
+                        <option value="1">Flexible</option>
+                        <option value="2">Moderate</option>
+                        <option value="3">Strict</option>
+                    </select>
+                </label>
+                <label>Fotografije<input type="file" name="photos" multiple accept="image/jpeg,image/png,image/webp" required></label>
+                <label>Primarna slika
+                    <select name="primaryPhotoIndex"><option value="0">Prva slika</option></select>
+                </label>
+                <button type="submit" class="primary">Kreiraj sobu</button>
+            </form>
+
+            <h3>Postojeće sobe</h3>
+            <div id="ownerUnits" class="cards"></div>
+
+            <h3>Uredi odabranu sobu</h3>
+            <label>Odaberi sobu
+                <select id="ownerUnitSelect"><option value="">-- nema sobe --</option></select>
+            </label>
+
+            <h4>Fotografije sobe</h4>
+            <form id="unitPhotoForm" class="grid-form">
+                <label>Nova fotografija<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required></label>
+                <label class="checkbox-inline"><input type="checkbox" name="isPrimary"> Postavi kao primarnu</label>
+                <button type="submit">Dodaj fotografiju sobi</button>
+            </form>
+            <div id="ownerSelectedUnitPhotos" class="photo-gallery"></div>
+
+            <h4>Sadržaji sobe</h4>
+            <div id="ownerUnitAmenities" class="checkbox-list"></div>
+            <button id="saveUnitAmenities">Spremi sadržaje odabrane sobe</button>
+        </details>
+
+        <details>
+            <summary>Availability blocks</summary>
+            <h3>Blokiraj cijeli odabrani smještaj</h3>
+            <form id="createAccommodationBlockForm" class="grid-form">
+                <label>Od<input type="date" name="startDate" required></label>
+                <label>Do<input type="date" name="endDate" required></label>
+                <button type="submit">Dodaj block</button>
+            </form>
+
+            <h3>Blokiraj sobu</h3>
+            <form id="createUnitBlockForm" class="grid-form">
+                <label>Soba
+                    <select name="unitId" id="blockUnitSelect" required><option value="">-- odaberi sobu --</option></select>
+                </label>
+                <label>Od<input type="date" name="startDate" required></label>
+                <label>Do<input type="date" name="endDate" required></label>
+                <button type="submit">Dodaj block sobe</button>
+            </form>
+
+            <div class="card-actions">
+                <button id="loadAccommodationBlocks">Prikaži blockove smještaja</button>
+                <button id="loadUnitBlocks">Prikaži blockove odabrane sobe</button>
+                <label class="checkbox-inline"><input type="checkbox" id="includePastBlocks"> Uključi prošle</label>
+            </div>
+            <div id="blocksResult" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Rezervacije mojih smještaja</summary>
+            <button id="loadOwnerReservations">Osvježi rezervacije</button>
+            <div id="ownerReservations" class="cards"></div>
+        </details>
+    </section>
+
+    <section id="adminSection" class="panel">
+        <h2>Admin upravljanje</h2>
+        <p class="hint">Admin također ne treba upisivati ID-eve. Sve akcije su na karticama, a popisi se automatski osvježavaju nakon promjene.</p>
+
+        <details open>
+            <summary>Smještaji na čekanju</summary>
+            <button id="loadPending">Osvježi</button>
+            <div id="pendingAccommodations" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Svi smještaji</summary>
+            <button id="loadAdminAccommodations">Osvježi sve smještaje</button>
+            <div id="adminAccommodations" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Korisnici</summary>
+            <button id="loadAccounts">Osvježi korisnike</button>
+            <div id="adminAccounts" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Sve rezervacije</summary>
+            <button id="loadAdminReservations">Osvježi rezervacije</button>
+            <div id="adminReservations" class="cards"></div>
+        </details>
+
+        <details>
+            <summary>Moderiranje recenzija</summary>
+            <button id="loadAdminReviews">Učitaj sve recenzije</button>
+            <div id="adminReviews" class="cards"></div>
+        </details>
+    </section>
+</main>
+
+<script src="/app.js?v=4"></script>
+</body>
+</html>

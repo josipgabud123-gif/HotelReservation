@@ -1,4 +1,5 @@
-﻿using HotelReservation.Domain.Enums;
+using HotelReservation.Application.DTOs.AccommodationUnit;
+using HotelReservation.Domain.Enums;
 
 namespace HotelReservation.Application.DTOs.Search;
 
@@ -17,4 +18,6 @@ public class AvailableUnitDto
     public CancellationPolicy CancellationPolicy { get; set; }
 
     public List<int> AmenityIds { get; set; } = new();
+
+    public List<AccommodationUnitPhotoDto> Photos { get; set; } = new();
 }

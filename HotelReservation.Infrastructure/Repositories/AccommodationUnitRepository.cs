@@ -1,4 +1,4 @@
-﻿using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Interfaces;
 using HotelReservation.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -88,6 +88,13 @@ public class AccommodationUnitRepository
     {
         _context.AccommodationUnits
             .Remove(unit);
+    }
+
+    public void RemovePhoto(
+        AccommodationUnitPhoto photo)
+    {
+        _context.AccommodationUnitPhotos
+            .Remove(photo);
     }
 
     public void RemoveAmenity(

@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTOs.Accommodation;
+using HotelReservation.Application.DTOs.Accommodation;
 using HotelReservation.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,22 @@ public class AdminAccommodationsController : ControllerBase
         IAccommodationService accommodationService)
     {
         _accommodationService = accommodationService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<AccommodationDto>>>
+        GetAll()
+    {
+        return Ok(
+            await _accommodationService.GetAllAsync());
+    }
+
+    [HttpGet("{id:int}/details")]
+    public async Task<ActionResult<AccommodationManagementDto>> GetDetails(
+        int id)
+    {
+        return Ok(
+            await _accommodationService.GetAdminDetailsAsync(id));
     }
 
     [HttpGet("pending")]

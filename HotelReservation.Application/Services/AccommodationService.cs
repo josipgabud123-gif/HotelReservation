@@ -1,4 +1,4 @@
-﻿using HotelReservation.Application.DTOs.Accommodation;
+using HotelReservation.Application.DTOs.Accommodation;
 using HotelReservation.Application.Exceptions;
 using HotelReservation.Application.Interfaces.Services;
 using HotelReservation.Domain.Entities;
@@ -152,6 +152,54 @@ public class AccommodationService : IAccommodationService
             .Select(Map)
             .ToList();
     }
+    public async Task<AccommodationManagementDto> GetManagementAsync(
+        int ownerId,
+        int accommodationId)
+    {
+        Domain.Entities.Accommodation? accommodation =
+            await _unitOfWork.Accommodations
+                .GetByIdWithDetailsAsync(accommodationId);
+
+        if (accommodation is null)
+        {
+            throw new NotFoundException(
+                "Accommodation was not found.");
+        }
+
+        EnsureOwnership(accommodation, ownerId);
+
+        return MapManagement(accommodation);
+    }
+
+    public async Task<AccommodationManagementDto> GetAdminDetailsAsync(
+        int accommodationId)
+    {
+        Domain.Entities.Accommodation? accommodation =
+            await _unitOfWork.Accommodations
+                .GetByIdWithDetailsAsync(accommodationId);
+
+        if (accommodation is null)
+        {
+            throw new NotFoundException(
+                "Accommodation was not found.");
+        }
+
+        return MapManagement(accommodation);
+    }
+
+    public async Task<List<AccommodationDto>> GetAllAsync()
+    {
+        List<Domain.Entities.Accommodation> accommodations =
+            await _unitOfWork.Accommodations
+                .GetAllAsync();
+
+        return accommodations
+            .Where(a => a.ApprovalStatus != ApprovalStatus.Draft)
+            .OrderBy(a => a.Name)
+            .Select(Map)
+            .ToList();
+    }
+
     public async Task<AccommodationDto> UpdateAsync(
     int ownerId,
     int accommodationId,
@@ -652,6 +700,69 @@ public class AccommodationService : IAccommodationService
             OwnerId = accommodation.OwnerId,
             CreatedAt = accommodation.CreatedAt,
             UpdatedAt = accommodation.UpdatedAt
+        };
+    }
+
+    private static AccommodationManagementDto MapManagement(
+        Domain.Entities.Accommodation accommodation)
+    {
+        return new AccommodationManagementDto
+        {
+            Id = accommodation.Id,
+            Name = accommodation.Name,
+            Description = accommodation.Description,
+            Address = accommodation.Address,
+            City = accommodation.City,
+            Country = accommodation.Country,
+            Type = accommodation.Type,
+            ApprovalStatus = accommodation.ApprovalStatus,
+            RejectionReason = accommodation.RejectionReason,
+            IsActive = accommodation.IsActive,
+
+            Photos = accommodation.Photos
+                .OrderByDescending(p => p.IsPrimary)
+                .ThenBy(p => p.Id)
+                .Select(p => new AccommodationPhotoDto
+                {
+                    Id = p.Id,
+                    Path = p.Path,
+                    IsPrimary = p.IsPrimary
+                })
+                .ToList(),
+
+            AmenityIds = accommodation.AccommodationAmenities
+                .Select(aa => aa.AmenityId)
+                .OrderBy(id => id)
+                .ToList(),
+
+            Units = accommodation.Units
+                .OrderBy(u => u.Name)
+                .Select(u => new AccommodationManagementUnitDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Capacity = u.Capacity,
+                    PricePerNight = u.PricePerNight,
+                    CancellationPolicy = u.CancellationPolicy,
+                    IsActive = u.IsActive,
+
+                    Photos = u.Photos
+                        .OrderByDescending(p => p.IsPrimary)
+                        .ThenBy(p => p.Id)
+                        .Select(p => new HotelReservation.Application.DTOs.AccommodationUnit.AccommodationUnitPhotoDto
+                        {
+                            Id = p.Id,
+                            Path = p.Path,
+                            IsPrimary = p.IsPrimary
+                        })
+                        .ToList(),
+
+                    AmenityIds = u.AccommodationUnitAmenities
+                        .Select(ua => ua.AmenityId)
+                        .OrderBy(id => id)
+                        .ToList()
+                })
+                .ToList()
         };
     }
 
