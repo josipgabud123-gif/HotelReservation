@@ -1,6 +1,4 @@
-using HotelReservation.Application.DTOs.Accommodation;
-using HotelReservation.Application.DTOs.AccommodationUnit;
-using HotelReservation.Application.DTOs.Search;
+﻿using HotelReservation.Application.DTOs.Search;
 using HotelReservation.Application.Exceptions;
 using HotelReservation.Application.Interfaces.Services;
 using HotelReservation.Domain.Entities;
@@ -109,17 +107,6 @@ public class AccommodationSearchService
                     Type = accommodation.Type,
                     PrimaryPhotoPath =
                         primaryPhoto?.Path,
-
-                    Photos = accommodation.Photos
-                        .OrderByDescending(p => p.IsPrimary)
-                        .ThenBy(p => p.Id)
-                        .Select(p => new AccommodationPhotoDto
-                        {
-                            Id = p.Id,
-                            Path = p.Path,
-                            IsPrimary = p.IsPrimary
-                        })
-                        .ToList(),
 
                     FromPricePerNight =
                         cheapestUnit.PricePerNight,
@@ -231,18 +218,7 @@ public class AccommodationSearchService
             AmenityIds =
                 effectiveAmenities
                     .OrderBy(id => id)
-                    .ToList(),
-
-            Photos = unit.Photos
-                .OrderByDescending(p => p.IsPrimary)
-                .ThenBy(p => p.Id)
-                .Select(p => new AccommodationUnitPhotoDto
-                {
-                    Id = p.Id,
-                    Path = p.Path,
-                    IsPrimary = p.IsPrimary
-                })
-                .ToList()
+                    .ToList()
         };
     }
 

@@ -171,22 +171,6 @@ public class AccommodationService : IAccommodationService
         return MapManagement(accommodation);
     }
 
-    public async Task<AccommodationManagementDto> GetAdminDetailsAsync(
-        int accommodationId)
-    {
-        Domain.Entities.Accommodation? accommodation =
-            await _unitOfWork.Accommodations
-                .GetByIdWithDetailsAsync(accommodationId);
-
-        if (accommodation is null)
-        {
-            throw new NotFoundException(
-                "Accommodation was not found.");
-        }
-
-        return MapManagement(accommodation);
-    }
-
     public async Task<List<AccommodationDto>> GetAllAsync()
     {
         List<Domain.Entities.Accommodation> accommodations =

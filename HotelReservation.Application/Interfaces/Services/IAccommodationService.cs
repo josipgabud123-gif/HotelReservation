@@ -15,9 +15,6 @@ public interface IAccommodationService
         int ownerId,
         int accommodationId);
 
-    Task<AccommodationManagementDto> GetAdminDetailsAsync(
-        int accommodationId);
-
     Task<List<AccommodationDto>> GetAllAsync();
 
     Task<AccommodationDto> UpdateAsync(

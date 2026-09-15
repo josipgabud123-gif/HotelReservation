@@ -153,30 +153,4 @@ public class AdminAccommodationsControllerTests
             s => s.UnsuspendAsync(5),
             Times.Once);
     }
-
-    [Fact]
-    public async Task GetDetails_ShouldReturnOk_WithManagementData()
-    {
-        var expected = new AccommodationManagementDto
-        {
-            Id = 10,
-            Name = "Hotel Test"
-        };
-
-        _serviceMock
-            .Setup(s => s.GetAdminDetailsAsync(10))
-            .ReturnsAsync(expected);
-
-        ActionResult<AccommodationManagementDto> result =
-            await _controller.GetDetails(10);
-
-        OkObjectResult okResult =
-            Assert.IsType<OkObjectResult>(result.Result);
-
-        AccommodationManagementDto response =
-            Assert.IsType<AccommodationManagementDto>(okResult.Value);
-
-        Assert.Equal(10, response.Id);
-        Assert.Equal("Hotel Test", response.Name);
-    }
 }

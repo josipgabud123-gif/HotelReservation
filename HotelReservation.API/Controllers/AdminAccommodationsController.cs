@@ -27,14 +27,6 @@ public class AdminAccommodationsController : ControllerBase
             await _accommodationService.GetAllAsync());
     }
 
-    [HttpGet("{id:int}/details")]
-    public async Task<ActionResult<AccommodationManagementDto>> GetDetails(
-        int id)
-    {
-        return Ok(
-            await _accommodationService.GetAdminDetailsAsync(id));
-    }
-
     [HttpGet("pending")]
     public async Task<ActionResult<List<AccommodationDto>>>
         GetPending()

@@ -1,4 +1,4 @@
-using HotelReservation.Domain.Entities;
+﻿using HotelReservation.Domain.Entities;
 
 namespace HotelReservation.Domain.Interfaces;
 
@@ -22,8 +22,6 @@ public interface IAccommodationUnitRepository
     Task AddAsync(AccommodationUnit unit);
 
     void Remove(AccommodationUnit unit);
-
-    void RemovePhoto(AccommodationUnitPhoto photo);
 
     void RemoveAmenity(
         AccommodationUnitAmenity accommodationUnitAmenity);

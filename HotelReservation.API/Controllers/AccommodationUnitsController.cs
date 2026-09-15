@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using HotelReservation.API.Models.Requests;
 using HotelReservation.Application.DTOs.AccommodationUnit;
 using HotelReservation.Application.Interfaces.Services;
@@ -119,87 +119,6 @@ public class AccommodationUnitsController : ControllerBase
                 await stream.DisposeAsync();
             }
         }
-    }
-
-    [HttpPost("{unitId:int}/photos")]
-    [Consumes("multipart/form-data")]
-    public async Task<ActionResult<AccommodationUnitPhotoDto>> AddPhoto(
-        int accommodationId,
-        int unitId,
-        [FromForm] UploadPhotoRequest request)
-    {
-        if (request.File is null ||
-            request.File.Length == 0)
-        {
-            return BadRequest("File is empty.");
-        }
-
-        const long maxFileSize =
-            5 * 1024 * 1024;
-
-        if (request.File.Length > maxFileSize)
-        {
-            return BadRequest(
-                "Maximum image size is 5 MB.");
-        }
-
-        string[] allowedContentTypes =
-        {
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        };
-
-        if (!allowedContentTypes.Contains(
-                request.File.ContentType.ToLowerInvariant()))
-        {
-            return BadRequest(
-                "Unsupported image format.");
-        }
-
-        await using Stream stream =
-            request.File.OpenReadStream();
-
-        AccommodationUnitPhotoDto result =
-            await _service.AddPhotoAsync(
-                AccountId,
-                accommodationId,
-                unitId,
-                stream,
-                request.File.FileName,
-                request.IsPrimary);
-
-        return Ok(result);
-    }
-
-    [HttpDelete("{unitId:int}/photos/{photoId:int}")]
-    public async Task<IActionResult> DeletePhoto(
-        int accommodationId,
-        int unitId,
-        int photoId)
-    {
-        await _service.DeletePhotoAsync(
-            AccountId,
-            accommodationId,
-            unitId,
-            photoId);
-
-        return NoContent();
-    }
-
-    [HttpPost("{unitId:int}/photos/{photoId:int}/primary")]
-    public async Task<IActionResult> SetPrimaryPhoto(
-        int accommodationId,
-        int unitId,
-        int photoId)
-    {
-        await _service.SetPrimaryPhotoAsync(
-            AccountId,
-            accommodationId,
-            unitId,
-            photoId);
-
-        return NoContent();
     }
 
     [HttpPut("{unitId:int}")]
